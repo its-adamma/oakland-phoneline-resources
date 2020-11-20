@@ -1,0 +1,880 @@
+{
+  "description": "IVR",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "next": "split_speech_result",
+          "event": "incomingMessage"
+        },
+        {
+          "next": "gather_input",
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingRequest"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 250,
+          "y": 50
+        }
+      }
+    },
+    {
+      "name": "gather_input",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "split_key_press",
+          "event": "keypress"
+        },
+        {
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "alice",
+        "number_of_digits": 1,
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 240,
+          "y": 210
+        },
+        "loop": 1,
+        "finish_on_key": "",
+        "say": "Hello, how can we direct your call for Oakland alternatives? \n\nPress 1 for housing, \nPress 2 for LGBTQ+\nPress 3 Mental Health\nPress 4 Domestic Violence & Sexual Assault\nPress 5 for Crime",
+        "language": "en",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 6
+      }
+    },
+    {
+      "name": "split_key_press",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "next": "gather_housing_input",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "1",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "next": "gather_lgbt_input",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "2",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "next": "gather_mental_health",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 3",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "next": "gather_mental_health",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 4",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "next": "gather_crime",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 5",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "5"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_input.Digits}}",
+        "offset": {
+          "x": 110,
+          "y": 510
+        }
+      }
+    },
+    {
+      "name": "split_speech_result",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "housing",
+              "arguments": [
+                "{{widgets.gather_input.SpeechResult}}"
+              ],
+              "type": "matches_any_of",
+              "value": "housing"
+            }
+          ]
+        },
+        {
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "lgbt_plus",
+              "arguments": [
+                "{{widgets.gather_input.SpeechResult}}"
+              ],
+              "type": "matches_any_of",
+              "value": "plus"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_input.SpeechResult}}",
+        "offset": {
+          "x": -180,
+          "y": 140
+        }
+      }
+    },
+    {
+      "name": "connect_call_to_causa_justa",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        },
+        {
+          "event": "hangup"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1110,
+          "y": 1280
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "+15108362687",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "connect_call_to_amber_house",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 380,
+          "y": 1210
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "14153334357",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "split_key_press_housing",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "next": "connect_call_to_causa_justa",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "1",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "If value equal_to_1"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_covenant_house_california",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "2",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "If value equal_to_2"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_oakland_shelter_services",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to_3",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "If value equal_to_3"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_st_vincent",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to_4",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "4"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_input.Digits}}",
+        "offset": {
+          "x": -1100,
+          "y": 1030
+        }
+      }
+    },
+    {
+      "name": "connect_call_to_covenant_house_california",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1140,
+          "y": 1690
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "+15103791010",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "gather_housing_input",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "split_key_press_housing",
+          "event": "keypress"
+        },
+        {
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "alice",
+        "number_of_digits": 1,
+        "speech_timeout": "auto",
+        "offset": {
+          "x": -1120,
+          "y": 800
+        },
+        "loop": 2,
+        "finish_on_key": "",
+        "say": "Four options. \n\nPress 1 for Causa Justa:Information, referrals, and advocacy on behalf of tenants. English and Spanish. Can assist with unlawful detainers and evictions.\n\nPress 2 for Covenant House California, provides sanctuary and support for youth ages 18 through 24 facing homelessness and human trafficking. Emergency shelter programs.\n\nPress 3 for Oakland Shelter Services, city-run hotline to find shelter availability\n\nor Press 4 for St. Vincent de Paul, Drop-in center for women and children. Showers and laundry facilities, infant care, referrals.",
+        "language": "en",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 10
+      }
+    },
+    {
+      "name": "connect_call_to_oakland_shelter_services",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1150,
+          "y": 1490
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "+15105372552",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "connect_call_to_st_vincent",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        },
+        {
+          "event": "hangup"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1130,
+          "y": 1880
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "+15104443790",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "split_key_press_lgbt",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "next": "connect_call_to_desi_helpline",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "1",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "If value equal_to_1"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_cuav",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "2",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "If value equal_to_2"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_trans_law",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to_3",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "If value equal_to_3"
+            }
+          ]
+        },
+        {
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to_4",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "4"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_input.Digits}}",
+        "offset": {
+          "x": -500,
+          "y": 1000
+        }
+      }
+    },
+    {
+      "name": "connect_call_to_access",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 50,
+          "y": 1210
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "18004919099",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "gather_lgbt_input",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "split_key_press_lgbt",
+          "event": "keypress"
+        },
+        {
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "alice",
+        "number_of_digits": 1,
+        "speech_timeout": "auto",
+        "offset": {
+          "x": -540,
+          "y": 740
+        },
+        "loop": 2,
+        "finish_on_key": "",
+        "say": "Three options. \n\nPress 1 for the Desi LGBTQ Helpline - offers free, confidential, culturally sensitive peer support, info and resources for LGBTQ South Asian individuals, families and friends\n\nPress 2 for CUAV -Provides emotional support, safety planning, referrals, and limited case follow-up to LGBTQI people experiencing violence or abuse\n\nPress 3 for the Transgender Law Center, the largest national trans-led organization.  Helpline provides basic info about laws and policies that affect transgender people across many areas, including employment, health care, housing, civil rights, immigration, prisoners’ rights, and identity document changes.",
+        "language": "en",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 10
+      }
+    },
+    {
+      "name": "connect_call_to_desi_helpline",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        },
+        {
+          "event": "hangup"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -630,
+          "y": 1260
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "19083673374",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "connect_call_to_cuav",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        },
+        {
+          "event": "hangup"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -280,
+          "y": 1260
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "14153334357",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "connect_call_to_trans_law",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        },
+        {
+          "event": "hangup"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -630,
+          "y": 1490
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "15105879696",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "gather_mental_health",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "split_key_press_mental_health",
+          "event": "keypress"
+        },
+        {
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "alice",
+        "number_of_digits": 1,
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 30,
+          "y": 780
+        },
+        "loop": 1,
+        "finish_on_key": "",
+        "say": "Five options. \n\nPress 1 for Amber House, avoluntary crisis stabilization unit and voluntary crisis residential treatment program. \n\nPress 2 for Bay Area Community Services, crisis residential treatment and counseling for people experiencing mental health difficulties. A short-term residential alternative to psychiatric hospitalization, or support following hospitalization",
+        "language": "en",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 10
+      }
+    },
+    {
+      "name": "split_key_press_mental_health",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "next": "connect_call_to_access",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "1",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "If value equal_to_1"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_amber_house",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "2",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "If value equal_to_2"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_bay_area_comm_service",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to_3",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "If value equal_to_3"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_contra_costa",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to_4",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_contra_crisis",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 5",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_crisis_support_alameda",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 6",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "next": "connect_call_to_mh_first",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 7",
+              "arguments": [
+                "{{widgets.gather_input.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "7"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_input.Digits}}",
+        "offset": {
+          "x": -140,
+          "y": 1060
+        }
+      }
+    },
+    {
+      "name": "gather_crime",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "connect_call_to_crime",
+          "event": "keypress"
+        },
+        {
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "alice",
+        "number_of_digits": 1,
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 500,
+          "y": 720
+        },
+        "loop": 1,
+        "finish_on_key": "",
+        "say": "Press 1 for Bay Area Legal Aid",
+        "language": "en",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 10
+      }
+    },
+    {
+      "name": "connect_call_to_contra_costa",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 390,
+          "y": 1380
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "18886787277",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "connect_call_to_bay_area_comm_service",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 60,
+          "y": 1380
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "15106130330",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "connect_call_to_contra_crisis",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 50,
+          "y": 1590
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "1 8008332900",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "connect_call_to_crisis_support_alameda",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 390,
+          "y": 1600
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "18003092131",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "connect_call_to_mh_first",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 70,
+          "y": 1810
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "15109999MH1",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "connect_call_to_crime",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 480,
+          "y": 1010
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "15106634755",
+        "timeout": 30
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
